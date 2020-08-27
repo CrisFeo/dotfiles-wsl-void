@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# For some reason the paste and clip tools only work if the working directory
+# is in the windows volume
+cd /mnt/c
+
+if [[ $1 == 'p' || -t 0 ]]; then
+  paste.exe | tr -d 
+else
+  /mnt/c/Windows/System32/clip.exe
+fi

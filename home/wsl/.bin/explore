@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+path="$(winpath "$1")"
+/mnt/c/Windows/explorer.exe "${path}" || :

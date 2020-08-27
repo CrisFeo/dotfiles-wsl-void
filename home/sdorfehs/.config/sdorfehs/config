@@ -1,0 +1,70 @@
+escape C-q
+
+set font "PxPlus IBM VGA9:pixelsize=16"
+set fgcolor #87af00
+set bgcolor black
+set border 1
+set fwcolor #5f8700
+set bwcolor #525E54
+set bargravity nw
+set barsticky 0
+set barborder 0
+set barpadding 0 1
+set inputwidth 1920
+set gap 18
+set framemsgwait -1
+set ignoreresizehints 1
+
+set padding 0 100 0 0
+set padding 0 0 0 0
+
+bind colon colon
+bind question help root
+
+bind c exec st
+bind p exec /home/cris/.bin/sdorfehs-dmenu-run
+bind r title
+
+bind C-q other
+bind n   next
+bind C-n prev
+bind w   exec /home/cris/.bin/sdorfehs-dmenu-windows
+
+bind s   exec /home/cris/.bin/sdorfehs-cmd hsplit focus
+bind C-s exec /home/cris/.bin/sdorfehs-cmd vsplit focus
+bind d   remove
+
+bind h focusleft
+bind j focusdown
+bind k focusup
+bind l focusright
+bind H exchangeleft
+bind J exchangedown
+bind K exchangeup
+bind L exchangeright
+
+bind u   undo
+bind C-u redo
+bind o   only
+bind i   resize
+
+bind 1   vselect 1
+bind 2   vselect 2
+bind 3   vselect 3
+bind 4   vselect 4
+bind 5   vselect 5
+bind 6   vselect 6
+bind 7   vselect 7
+bind 8   vselect 8
+bind 9   vselect 9
+bind 0   vselect 0
+bind C-1 vmove 1
+bind C-2 vmove 2
+bind C-3 vmove 3
+bind C-4 vmove 4
+bind C-5 vmove 5
+bind C-6 vmove 6
+bind C-7 vmove 7
+bind C-8 vmove 8
+bind C-9 vmove 9
+bind C-0 vmove 0

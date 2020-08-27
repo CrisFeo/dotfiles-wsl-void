@@ -1,0 +1,35 @@
+#! /bin/bash
+
+sudo xbps-install "$@" \
+  Gifsicle \
+  asciidoc \
+  aws-cli \
+  base-devel \
+  base-voidstrap \
+  cmake \
+  curl \
+  daemontools \
+  dtach \
+  fzf \
+  fzy \
+  git \
+  git-lfs \
+  go \
+  indent \
+  jq \
+  kakoune \
+  libX11-devel \
+  libXft-devel \
+  libXrandr-devel \
+  libXtst-devel \
+  libcurl-devel \
+  libxml2-devel \
+  mysql \
+  ncurses-devel \
+  nodejs \
+  openjdk11 \
+  pulseaudio \
+  the_silver_searcher \
+  wget \
+  xorg-fonts \
+  xorg-minimal

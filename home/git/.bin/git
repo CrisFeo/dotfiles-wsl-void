@@ -1,0 +1,9 @@
+#!/bin/bash
+
+fullpath=`readlink -f ${PWD}`
+
+if [ "${fullpath:0:5}" == "/mnt/" ]; then
+  /mnt/c/Program\ Files/Git/bin/git.exe "$@" | less -XFR
+else
+  /usr/sbin/git "$@"
+fi

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+window="$(sdorfehs -c windows)"
+select="$(dmenu \
+  -i \
+  -fn 'PxPlus IBM VGA9:pixelsize=16' \
+  -nb black \
+  -nf '#87af00' \
+  -sb '#87af00' \
+  -sf black \
+  <<< "$window"
+)"
+number="$(sed -En 's#^([0-9]+).*$#\1#p' <<< "$select")"
+sdorfehs -c "select $number"

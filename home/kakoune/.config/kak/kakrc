@@ -1,0 +1,104 @@
+# Color scheme
+source "%val{config}/colors/simple.kak"
+
+# Custom language settings
+source "%val{config}/csharp.kak"
+source "%val{config}/git.kak"
+source "%val{config}/go.kak"
+
+# 3rd party modules
+source "~/projects/prelude.kak/rc/prelude.kak"
+source "~/projects/terminal-mode.kak/rc/terminal-mode.kak"
+source "~/projects/connect.kak/rc/connect.kak"
+
+# Features
+source "%val{config}/dir.kak"
+alias global d dir
+
+source "%val{config}/buflist.kak"
+alias global B buflist
+
+# UI tweaks
+set global startup_info_version 99999999999
+set global ui_options ncurses_assistant=off
+set global modelinefmt '%val{bufname} %val{cursor_line}:%val{cursor_char_column} {{context_info}}'
+
+# Always use two-space indent
+set global tabstop 2
+set global indentwidth 2
+set global aligntab false
+hook global InsertChar '\t' %{ try %{ exec -draft h@ } }
+
+# Trim trailing whitespace on save
+hook global BufWritePre .* %{ try %{
+  execute-keys -draft \%s\h+$<ret>d
+}}
+
+# Set the default tmux 'new' behavior to a vertical split instead of horizontal
+eval %sh{
+  if [ -n "$TMUX" ]; then
+    echo "require-module tmux"
+    echo "alias global terminal tmux-terminal-vertical"
+  fi
+}
+
+# Save the current buffer, creating the path if necessary
+define-command -params .. write-path %{
+  eval %sh{ mkdir -p "$(dirname "$kak_buffile")" }
+  write
+}
+alias global wp write-path
+
+# Support opt-in per-project settings using a .kakenv file
+def env \
+-docstring 'load the local .kakenv file if present' \
+%{ eval %sh{
+  [ -f .kakenv ] && echo 'source .kakenv'
+}}
+
+# Fuzzy file-finding in subfolders with ag
+def find \
+-docstring 'find and edit files under the current working directory' \
+-params 1.. \
+-shell-script-candidates %{ ag --hidden --ignore .git -g '' | sort -r } \
+%{ eval %sh{
+  for f in "$@"; do
+    printf 'edit -existing "%s"\n' "$f"
+  done
+}}
+alias global f find
+
+# Set ag as the grep command
+try %{
+  set global grepcmd 'ag --hidden --ignore .git --vimgrep'
+  alias global g grep
+}
+
+# Create quick user-mode shortcuts
+map global user b -docstring 'open buffer'                  :b<space>
+map global user B -docstring 'open buffer list'             :B<ret>
+map global user d -docstring 'explore buffer directory'     :d<ret>
+map global user f -docstring 'find files'                   :f<space>
+map global user l -docstring 'find lines'                   :g<space>%{}<c-b>
+map global user m -docstring 'do math'                      |bc<space>-l<ret>
+map global user c -docstring 'copy to windows clipboard'    <a-|>clip<ret>
+map global user p -docstring 'paste from windows clipboard' !clip<space>p<ret>
+map global user e -docstring 'execute selection as keys'    :exec<space>%val{selection}<ret>
+
+# Set the default shell to st in an X environment
+eval %sh{
+  if [ -n "$DISPLAY" ]; then
+    echo "map global user t -docstring 'connect a terminal' :connect-shell<space>st<ret>"
+  else
+    echo "map global user t -docstring 'connect a terminal' :connect-terminal<ret>"
+  fi
+}
+
+
+# Clear the scratch buffer default text
+hook global BufCreate '^\*scratch\*$' %{
+  try %{ exec -buffer *scratch* '%d' }
+}
+
+# Respect modelines when opening files
+hook global BufOpenFile .* %{ modeline-parse }

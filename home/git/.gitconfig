@@ -1,0 +1,34 @@
+[core]
+	editor = /usr/local/bin/kak
+	excludesfile = ~/.gitignore_global
+  pager = less -FXRS -x2
+	fscache = true
+	preloadindex = true
+[user]
+	name = CrisFeo
+	email = feo.cris@gmail.com
+	signingkey = CA85BB93424A3A1D
+[alias]
+	br = branch
+	br-co = checkout -b
+	co = checkout
+	st = status
+	ls = branch --list
+[push]
+	default = simple
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
+[url "ssh://git@github.plaid.com/"]
+	insteadOf = https://github.plaid.com/
+[merge]
+  tool = unityyamlmerge
+[mergetool "unityyamlmerge"]
+  trustExitCode = false
+  cmd = UnityYAMLMerge merge -p "$BASE" "$REMOTE" "$LOCAL" "$MERGED"
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[gc]
+	auto = 256

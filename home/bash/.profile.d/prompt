@@ -1,0 +1,22 @@
+#!/bin/bash
+
+prompt-command() {
+  if [ "$?" -ne 0 ]; then 
+    ERROR='\[\e[0;31m\]' # red
+  else
+    ERROR='\[\e[0m\]' # reset
+  fi
+  PENDING=""
+  BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+  if [ ! -z "$BRANCH" ]; then
+    BRANCH="$BRANCH "
+    if [ ! -z "$(git status --porcelain)" ]; then
+      PENDING='\[\e[0;33m\]' # yellow
+    fi
+  fi 
+  PS1="$PENDING$BRANCH$ERROR\w\[\e[0m\]\n> "
+}
+
+if ! grep 'prompt-command' <<< "$PROMPT_COMMAND" > /dev/null; then
+  PROMPT_COMMAND="prompt-command;$PROMPT_COMMAND"
+fi

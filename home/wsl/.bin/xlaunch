@@ -1,0 +1,42 @@
+#!/bin/bash
+set -e
+
+tmppath="/tmp/xlaunch"
+mkdir -p "$tmppath"
+cd "$tmppath"
+
+if ! pgrep --pidfile "$tmppath/vcxsrv.pid" &> /dev/null; then
+echo 'running vcxsrv'
+(
+  cd '/mnt/c/tools'
+  ./VcXsrv/vcxsrv.exe \
+    -rootless \
+    -dpi 141 \
+    &> "$tmppath/vcxsrv.log" &
+  echo "$!" > "$tmppath/vcxsrv.pid"
+) || :
+else
+  echo 'vcxsrv already running'
+fi
+
+if ! pgrep --pidfile "$tmppath/pulseaudio.pid" &> /dev/null; then
+echo 'running pulseaudio'
+(
+  cd '/mnt/c/tools'
+  ./pulseaudio/bin/pulseaudio.exe &> "$tmppath/pulseaudio.log" &
+  echo "$!" > "$tmppath/pulseaudio.pid"
+) || :
+else
+  echo 'pulseaudio already running'
+fi
+
+sleep 1
+
+cd "$HOME"
+export DISPLAY=:0.0
+export GDK_SCALE=0.5
+export GDK_DPI_SCALE=2
+export LIBGL_ALWAYS_INDIRECT=1
+export PULSE_SERVER=tcp:localhost
+echo 'running window manager'
+dtach -n "$tmppath/wm.sock" bash -c "sdorfehs &> '$tmppath/wm.log'"

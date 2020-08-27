@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+path="$(readlink -f "$1")"
+[ "${path:0:7}" == "/mnt/c/" ]
+path="${path:7}"
+path="$(tr -s '/' '\\' <<< "${path}")"
+printf 'C:\\%s\n' "${path}"

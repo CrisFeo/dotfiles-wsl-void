@@ -1,0 +1,3 @@
+#! /bin/bash
+
+ls './home' | xargs -n 1 stow -d './home' -t "$HOME" "$@"

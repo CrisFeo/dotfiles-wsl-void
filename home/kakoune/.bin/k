@@ -1,0 +1,10 @@
+#!/bin/bash
+
+kak -clear
+servername="d$(pwd -P | tr '/.' '-')"
+socketfile="$(kak -l | grep "$servername")"
+if [[ $socketfile == "" ]]; then
+  kak -s "$servername" $@
+else
+  kak -c "$servername" $@
+fi
