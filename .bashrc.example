@@ -1,0 +1,2 @@
+[[ "$-" != *i* ]] && return
+for f in $HOME/.profile.d/*; do . "$f"; done

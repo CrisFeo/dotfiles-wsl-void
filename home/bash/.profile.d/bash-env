@@ -1,0 +1,11 @@
+#!/bin/bash
+
+stty -ixon
+
+export HISTCONTROL=ignoreboth
+
+export EDITOR=kak
+export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx
+export PROMPT_DIRTRIM=3
+
+export PATH="$HOME/.bin:$PATH"
