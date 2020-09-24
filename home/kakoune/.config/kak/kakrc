@@ -6,6 +6,11 @@ source "%val{config}/csharp.kak"
 source "%val{config}/git.kak"
 source "%val{config}/go.kak"
 
+# kak-lsp
+#eval %sh{ kak-lsp --kakoune -s $kak_session }
+#set global lsp_cmd "kak-lsp -s %val{session} -vvv --log '/tmp/kak-lsp.log'"
+#lsp-enable
+
 # 3rd party modules
 source "~/projects/prelude.kak/rc/prelude.kak"
 source "~/projects/terminal-mode.kak/rc/terminal-mode.kak"
@@ -80,7 +85,7 @@ map global user B -docstring 'open buffer list'             :B<ret>
 map global user d -docstring 'explore buffer directory'     :d<ret>
 map global user f -docstring 'find files'                   :f<space>
 map global user l -docstring 'find lines'                   :g<space>%{}<c-b>
-map global user m -docstring 'do math'                      |bc<space>-l<ret>
+map global user m -docstring 'do math'                      |bc<space>-l|<space>sed<space>-E<space>'s#0+$#0#'<ret>
 map global user c -docstring 'copy to windows clipboard'    <a-|>clip<ret>
 map global user p -docstring 'paste from windows clipboard' !clip<space>p<ret>
 map global user e -docstring 'execute selection as keys'    :exec<space>%val{selection}<ret>

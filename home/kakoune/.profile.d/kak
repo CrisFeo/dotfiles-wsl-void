@@ -1,5 +1,7 @@
 #!/bin/bash
 
+alias k='kak'
+
 if [ ! -z "$IN_KAKOUNE_CONNECT" ]; then
   alias :cdb='cd "$(dirname "$(:it)")"'
 fi

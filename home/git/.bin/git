@@ -3,7 +3,12 @@
 fullpath=`readlink -f ${PWD}`
 
 if [ "${fullpath:0:5}" == "/mnt/" ]; then
-  /mnt/c/Program\ Files/Git/bin/git.exe "$@" | less -XFR
+  gitexe='/mnt/c/Program Files/Git/bin/git.exe'
+  if [ -t 1 ]; then
+    "$gitexe" -c color.ui=always "$@" | less -XFR
+  else
+    "$gitexe" -c color.ui=false "$@"
+  fi
 else
   /usr/sbin/git "$@"
 fi

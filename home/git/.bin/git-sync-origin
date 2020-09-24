@@ -2,8 +2,8 @@
 set -e
 
 git fetch --all
-git co master
+git checkout master
 git pull
-git br --merged | grep -v '\*' | xargs --no-run-if-empty -n 1 git branch -d
+git branch --no-color --merged | grep -v '\*' | xargs --no-run-if-empty -n 1 git branch -d
 git remote prune origin
 

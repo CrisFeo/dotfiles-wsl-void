@@ -1,81 +1,96 @@
+# Via: https://github.com/BanchouBoo/dots/blob/master/etc/kak/autoload/filetypes/csharp.kak
+
 # Detection
-###################
+# ‾‾‾‾‾‾‾‾‾‾
 
-hook -group csharp global BufCreate .*\.cs$ %{
-  set buffer filetype csharp
+hook global BufCreate .*[.](cs|csx|csi) %{
+	set-option buffer filetype csharp
 }
 
-# Highlighters
-###################
-
-addhl shared/csharp regions
-addhl shared/csharp/comment      region '//' $ fill comment
-addhl shared/csharp/commentBlock region /\* \*/ fill comment
-addhl shared/csharp/string       region '"' (?<!\\)(\\\\)*" fill string
-addhl shared/csharp/attribute    region \[ \] fill meta
-addhl shared/csharp/code default-region group
-addhl shared/csharp/code/numbers regex %{\b-?(0x[0-9a-fA-F]+|\d+)[fdiu]?|'((\\.)?|[^'\\])'} 0:value
-eval %sh{
-  keywords="break|continue|do|for|foreach|goto|return|while|else|if|switch|case|default|try|catch|finally|throw|when|async|await|using"
-  attributes="delegate|enum|interface|namespace|struct|abstract|const|extern|internal|override|private|protected|public|readonly|sealed|static|virtual|volatile"
-  types="bool|byte|char|decimal|double|float|int|long|object|sbyte|short|string|T|uint|ulong|ushort|var|void|dynamic"
-  values="null|false|true"
-
-  # Add the language's grammar to the static completion list
-  printf %s\\n "hook global WinSetOption filetype=csharp %{
-    set window static_words ${keywords} ${attributes} ${types} ${values}
-  }" | tr '|' ' '
-
-  # Highlight keywords
-  printf %s "
-    addhl shared/csharp/code/keywords   regex \b(${keywords})\b 0:keyword
-    addhl shared/csharp/code/attributes regex \b(${attributes})\b 0:attribute
-    addhl shared/csharp/code/types      regex \b(${types})\b 0:type
-    addhl shared/csharp/code/values     regex \b(${values})\b 0:value
-  "
-}
-
-# Indentation
-###################
-
-define-command -hidden csharp-indent-on-new-line %~
-  evaluate-commands -draft -itersel %=
-    # preserve previous line indent
-    try %{ execute-keys -draft \;K<a-&> }
-    # indent after lines ending with { or (
-    try %[ execute-keys -draft k<a-x> <a-k> [{(]\h*$ <ret> j<a-gt> ]
-    # cleanup trailing white spaces on the previous line
-    try %{ execute-keys -draft k<a-x> s \h+$ <ret>d }
-    # indent after a switch's case/default statements
-    try %[ execute-keys -draft k<a-x> <a-k> ^\h*(case|default).*:$ <ret> j<a-gt> ]
-    # indent after if|else|while|for
-    try %[ execute-keys -draft \;<a-F>)MB <a-k> \A(if|else|while|for)\h*\(.*\)\h*\n\h*\n?\z <ret> s \A|.\z <ret> 1<a-&>1<a-space><a-gt> ]
-  =
-~
-
-define-command -hidden csharp-indent-on-char %<
-  evaluate-commands -draft -itersel %<
-    # align closer token to its opener when alone on a line
-    try %/ execute-keys -draft <a-h> <a-k> ^\h+[\]}]$ <ret> m s \A|.\z <ret> 1<a-&> /
-  >
->
-
-# Hooks
-###################
+# Initialization
+# ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 hook -group csharp-highlight global WinSetOption filetype=csharp %{
-  addhl window/csharp ref csharp
+    add-highlighter window/csharp ref csharp
+    hook -once -always window WinSetOption filetype=.* %{ remove-highlighter window/csharp }
 }
 
-hook -group csharp-highlight global WinSetOption filetype=(?!csharp).* %{
-  rmhl window/csharp
-}
+# Highlighters & Completion
+# ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-hook global WinSetOption filetype=csharp %{
-  hook window InsertChar \n -group csharp-indent csharp-indent-on-new-line
-  hook window InsertChar .* -group csharp-indent csharp-indent-on-char
-}
+add-highlighter shared/csharp regions
+add-highlighter shared/csharp/code default-region group
+add-highlighter shared/csharp/double_string region @?(?<!')" (?<!\\)(\\\\)*"B? fill string
+add-highlighter shared/csharp/single_string region @?(?<!')' (?<!\\)(\\\\)*'B? fill string
+add-highlighter shared/csharp/comment-line region '//' '$' fill comment
+add-highlighter shared/csharp/comment-block region '/\*' '\*/' fill comment
+# add-highlighter shared/csharp/attributes region "\s\[" "\]" fill meta
 
-hook global WinSetOption filetype=(?!csharp).* %{
-    remove-hooks window csharp-.+
+# functions
+# add-highlighter shared/csharp/code/ regex '(([_a-zA-Z])([_a-zA-Z0-9])*(?=\())' 0:function
+add-highlighter shared/csharp/code/ regex '(([_a-zA-Z])\w*(?=\())' 0:function
+
+# attributes
+# add-highlighter shared/csharp/code/ regex '(?<=\s\[)[a-zA-Z]*(?=[\(\]])' 0:meta
+add-highlighter shared/csharp/code/ regex '(?<=\s\[)\w*(?=[\(\]])' 0:meta
+
+# class and struct declaration
+# add-highlighter shared/csharp/code/ regex '(((?<=class )|(?<=struct ))([_a-zA-Z])([_a-zA-Z0-9])*(?=\s))' 0:attribute
+add-highlighter shared/csharp/code/ regex '(((?<=class )|(?<=struct ))([_a-zA-Z])\w*(?=\s))' 0:attribute
+
+# variables
+# add-highlighter shared/csharp/code/ regex '(?<=[\h(])\w*((?=\.\w)|(?=\[\w))' 0:variable
+# add-highlighter shared/csharp/code/ regex '(^\h*|(?<=\w)\h+|(?<=;)\h*)\w*\h*((?=;)|(?==)|(?=\+)|(?=-)|(?=\*))' 0:variable
+add-highlighter shared/csharp/code/ regex '(^\h*|(?<=[\w\]>])\h+|(?<=[;=+\-*/<>{}(,])\h*)\w*\h*((?=[,;)=+\-*/<>])\h*|(?=\.\w)|(?=\[\w))' 0:variable
+
+# types
+# add-highlighter shared/csharp/code/ regex '\w\h*\w*((?=,)|(?==)|(?=\h=))' 0:meta
+# add-highlighter shared/csharp/code/ regex '((?<=\()|(?<=,)|(?<=, ))\w*(?= \w)' 0:type
+add-highlighter shared/csharp/code/ regex '\w*\h+(?=\w)' 0:type
+add-highlighter shared/csharp/code/ regex '\w*((?=<)|(?=\[\]))' 0:type
+
+# surrounders
+add-highlighter shared/csharp/code/ regex '[\[\]\(\){}]' 0:bracket
+
+# numbers
+add-highlighter shared/csharp/code/ regex '(?<![^\s(,=\[])(-|)([0-9]+)(\.([0-9]+)|)([fFdDmM]|)' 0:value
+
+# operators
+add-highlighter shared/csharp/code/ regex '[=<>+\-*/]' 0:operator
+
+# add-highlighter shared/csharp/code/ regex '\b((?<=(^| |\.))([_a-zA-Z])([_a-zA-Z0-9])*(?=\())\b' 0:function
+# add-highlighter shared/csharp/code/ regex '\b(([_\p{L}\p{Nl}])([\p{L}\p{Nl}\p{Nd}\p{Pc}\p{Mc}\p{Mn}\p{Cf}])*(?=\())\b' 0:function
+
+evaluate-commands %sh{
+	keywords="abstract|as|base|break|case|catch|checked|class|const|continue"
+	keywords="${keywords}|default|do|else|event|explicit|extern|finally"
+	keywords="${keywords}|fixed|for|foreach|goto|if|implicit|in|interface"
+	keywords="${keywords}|internal|is|lock|namespace|new|operator|out"
+	keywords="${keywords}|override|params|private|protected|public|readonly"
+	keywords="${keywords}|ref|return|sealed|sizeof|stackalloc|static|struct"
+	keywords="${keywords}|switch|this|throw|try|typeof|unchecked|unsafe"
+	keywords="${keywords}|using|virtual|volatile|while"
+
+	context="add|alias|ascending|async|await|by|descending|dynamic|equals"
+	context="${context}|from|get|global|group|into|join|let|nameof|on"
+	context="${context}|orderby|partial|remove|select|set|unmanaged|value"
+	context="${context}|var|when|where|yield"
+
+	types="bool|byte|char|decimal|delegate|double|float|int|long"
+	types="${types}|object|sbyte|short|string|uint|ulong|ushort|void"
+
+	values="true|false|null"
+
+	# Add the language's grammar to the static completion list
+	printf '%s\n' "hook global WinSetOption filetype=csharp %{
+		set-option window static_words ${keywords} ${context} ${types}
+	}" | tr '|' ' '
+
+    # Highlight keywords
+    printf '%s\n' "
+        add-highlighter shared/csharp/code/ regex '\b(${keywords})\b' 0:keyword
+        add-highlighter shared/csharp/code/ regex '\b(${context})\b' 0:keyword
+        add-highlighter shared/csharp/code/ regex '\b(${types})\b' 0:type
+        add-highlighter shared/csharp/code/ regex '\b(${values})\b' 0:value
+    "
 }
