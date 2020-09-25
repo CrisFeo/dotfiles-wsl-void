@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -d "$1" ]; then
+  cd "$(readlink -f "$1")"
+  kak -e 'dir'
+else
+  kak "$1"
+fi
